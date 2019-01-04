@@ -1,0 +1,34 @@
+item {
+  id: 1
+  name: 'falcon'
+}
+
+item {
+  id: 2
+  name: 'ironman'
+}
+
+item {
+  id: 3
+  name: 'battery'
+}
+
+item {
+  id: 4
+  name: 'keyboard'
+}
+
+item {
+  id: 5
+  name: 'mouse'
+}
+
+item {
+  id: 6
+  name: 'transformer'
+}
+
+item {
+  id: 7
+  name: 'cell phone'
+}

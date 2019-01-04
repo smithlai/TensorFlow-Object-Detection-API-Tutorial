@@ -1,0 +1,176 @@
+Docker用法
+docker create --name smith-tensorflow -it --runtime=nvidia --network=host -v $HOME:/host usi/tensorflow
+docker ps -a
+docker start smith-tensorflow
+docker exec -it smith-tensorflow bash
+
+
+tutorial 
+
+#Python + Tensorflow
+Setup:
+> https://www.tensorflow.org/install/pip   or   https://www.tensorflow.org/install/
+
+
+
+sudo apt update
+sudo apt install python3-dev python3-pip
+sudo pip3 install -U virtualenv  # system-wide install
+
+mkdir virtualenvs
+cd virtualenvs
+virtualenv --system-site-packages -p python3 tensorflow
+cd ..
+
+source ./virtualenvs/tensorflow/bin/activate
+
+(tensorflow)$ pip install --upgrade pip
+
+(tensorflow)$ pip install --upgrade tensorflow
+
+# verify with 
+(tensorflow)$ python -c "import tensorflow as tf; tf.enable_eager_execution(); print(tf.reduce_sum(tf.random_normal([1000, 1000])))"
+
+
+# Object Detection : https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/installation.md
+
+(tensorflow)$ git clone https://github.com/tensorflow/tensorflow.git
+(tensorflow)$ cd tensorflow
+(tensorflow)$ git clone https://github.com/tensorflow/models.git
+cd 
+
+(tensorflow)$ sudo apt-get install protobuf-compiler python-pil python-lxml python-tk
+(tensorflow)$ pip install Cython
+(tensorflow)$ pip install contextlib2
+(tensorflow)$ pip install jupyter
+(tensorflow)$ pip install matplotlib
+
+
+##cocoapi
+    git clone https://github.com/cocodataset/cocoapi.git
+    cd cocoapi/PythonAPI
+    make
+    cp -r pycocotools tensorflow/models/research/
+    
+
+##protobuf
+    cd tensorflow/models/research/
+    protoc object_detection/protos/*.proto --python_out=.
+
+    #https://github.com/EdjeElectronics/TensorFlow-Object-Detection-API-Tutorial-Train-Multiple-Objects-Windows-10#3-gather-and-label-pictures
+    #(Note: TensorFlow occassionally adds new .proto files to the \protos folder. If you get an error saying ImportError: cannot import name 'something_something_pb2' , you may need to update the protoc command to include the new .proto files.)
+    
+#https://github.com/EdjeElectronics/TensorFlow-Object-Detection-API-Tutorial-Train-Multiple-Objects-Windows-10#3-gather-and-label-pictures
+(tensorflow1) C:\tensorflow1\models\research> python setup.py build
+(tensorflow1) C:\tensorflow1\models\research> python setup.py install
+    
+export PYTHONPATH=$PYTHONPATH:~/tensorflow/tensorflow-official/models/research/:~/tensorflow/tensorflow-official/models/research/slim:~/tensorflow/tensorflow-official/models
+and add to .bashrc
+
+#verify
+(tensorflow)$ python object_detection/builders/model_builder_test.py
+
+#in tensorflow1/models/research/object_detection
+(tensorflow)$ jupyter notebook object_detection_tutorial.ipynb
+
+
+
+
+
+
+
+
+
+#Customize object detection
+How To Train an Object Detection Classifier for Multiple Objects Using TensorFlow (GPU) on Windows 10
+https://github.com/EdjeElectronics/TensorFlow-Object-Detection-API-Tutorial-Train-Multiple-Objects-Windows-10
+<~/tensorflow>
+1.mkdir tensorflow-custom
+2.cd tensorflow-custom
+3.git clone https://github.com/EdjeElectronics/TensorFlow-Object-Detection-API-Tutorial-Train-Multiple-Objects-Windows-10.git
+4.git clone https://github.com/tensorflow/models.git
+5.copy code from TensorFlow-Object-Detection-API-Tutorial-Train-Multiple-Objects-Windows-10/ to model/research/object_detection
+<~/tensorflow/tensorflow1/>
+cp TensorFlow-Object-Detection-API-Tutorial  model/research/object_detection
+
+6.export PYTHONPATH="~/tensorflow/tensorflow1/models:~/tensorflow/tensorflow1/models/research/:~/tensorflow/tensorflow1/models/research/slim:$PYTHONPATH"
+
+<~/tensorflow/tensorflow1/models/research/object_detection/TensorFlow-Object-Detection-API-Tutorial>
+7.modify the training/labelmap.pbtxt
+(tensorflow)$ vi training/labelmap.pbtxt
+
+8.generate csv (tensorflow1) 
+ #Because we will call generate_tfrecord.py later, which need csv
+ #parse the minx,miny,filename..... to a csv file
+ 
+10.<~/tensorflow/tensorflow1/models/research/object_detection/TensorFlow-Object-Detection-API-Tutorial>
+`(tensorflow)$  python xml_to_csv.py`
+
+11.<~/tensorflow/tensorflow1/models/research/object_detection/TensorFlow-Object-Detection-API-Tutorial>
+generate tfrecord (required by object detection)
+# Modify label mapping in generate_tfrecord.py
+(tensorflow)$ python generate_tfrecord.py
+
+`(tensorflow)$ python generate_tfrecord.py --csv_input=images/train_labels.csv --image_dir=images/train --output_path=train.record`
+`(tensorflow)$ python generate_tfrecord.py --csv_input=images/test_labels.csv --image_dir=images/test --output_path=test.record`
+
+
+12. download model and modify pipeline config.
+(this can also be download from https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/detection_model_zoo.md)
+for example : faster_rcnn_inception_v2_coco_2018_01_28
+
+Configure training
+<~/tensorflow/tensorflow1/models/research/object_detection/>
+`vi ./faster_rcnn_inception_v2_coco_2018_01_28/pipeline.config`
+```
+    num_classes=6
+    ....
+    ....
+    fine_tune_checkpoint : "/home/smith/tensorflow/tensorflow2/models/research/object_detection/faster_rcnn_inception_v2_coco_2018_01_28/model.ckpt"
+    .....
+    ....
+    input_path : "/home/smith/tensorflow/tensorflow2/models/research/object_detection/TensorFlow-Object-Detection-API-Tutorial/train.record"
+    label_map_path: "/home/smith/tensorflow/tensorflow2/models/research/object_detection/TensorFlow-Object-Detection-API-Tutorial/training/labelmap.pbtxt"
+    ....
+    ....
+    input_path : "/home/smith/tensorflow/tensorflow2/models/research/object_detection/TensorFlow-Object-Detection-API-Tutorial/test.record"
+    label_map_path: "/home/smith/tensorflow/tensorflow2/models/research/object_detection/TensorFlow-Object-Detection-API-Tutorial/training/labelmap.pbtxt"
+```
+
+> 注意一定要用絕對路徑，而且不支援 ~/ 的表示法
+
+
+5.Run!
+> UPDATE 9/26/18: As of version 1.9, TensorFlow has deprecated the "train.py" file and replaced it with "model_main.py" file. 
+> I haven't been able to get model_main.py to work correctly yet (I run in to errors related to pycocotools). 
+> Fortunately, the train.py file is still available in the /object_detection/legacy folder. 
+> Simply move train.py from /object_detection/legacy into the /object_detection folder and then continue following the steps below.
+
+This creates a frozen_inference_graph.pb file in the \object_detection\inference_graph folder. The .pb file contains the object detection classifier.
+(tensorflow)$ python ~/tensorflow/tensorflow-official/models/research/object_detection/train.py        --logtostderr --train_dir=training/ --pipeline_config_path=training/faster_rcnn_inception_v2_pets.config
+                    or
+              python ~/tensorflow/tensorflow-official/models/research/object_detection/legacy/train.py --logtostderr --train_dir=training/ --pipeline_config_path=training/faster_rcnn_inception_v2_pets.config
+
+
+#Note
+
+如果遇到
+> File "object_detection/train.py", line 49, in <module>
+>     from object_detection.builders import dataset_builder
+> ImportError: cannot import name 'dataset_builder'
+或是
+> ModuleNotFoundError: No module named 'nets'
+之類的
+請檢查PYTHONPATH
+
+
+如果遇到   
+> File "/home/smith/tensorflow/tensorflow2/models/research/object_detection/utils/learning_schedules.py", line 160, in manual_stepping
+>     raise ValueError('First step cannot be zero.')
+    
+請參照   https://github.com/tensorflow/models/issues/3794
+
+              
+(tensorflow)$ python ~/tensorflow/tensorflow-official/models/research/object_detection/export_inference_graph.py --input_type image_tensor --pipeline_config_path training/faster_rcnn_inception_v2_pets.config --trained_checkpoint_prefix training/model.ckpt-XXXX --output_directory inference_graph
+
+
