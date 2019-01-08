@@ -35,7 +35,7 @@ from utils import visualization_utils as vis_util
 # Name of the directory containing the object detection module we're using
 MODEL_FILE = 'frozen_inference_graph.pb'
 LABEL_FILE = 'label_map.pbtxt'
-VERIFY_ROOT = "verify"
+VERIFY_ROOT = "Object_detection_image"
 VERIFY_RESULT_FOLDER = os.path.join(VERIFY_ROOT, "result")
 IMAGE_FOLDER = "images"
 IMAGE_MAX = 600
