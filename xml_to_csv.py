@@ -2,7 +2,9 @@ import os
 import glob
 import pandas as pd
 import xml.etree.ElementTree as ET
+import argparse
 
+DEFAULT_IMAGE_ROOT = 'images'
 
 def xml_to_csv(path):
     xml_list = []
@@ -26,10 +28,14 @@ def xml_to_csv(path):
 
 
 def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-s", "--source_root", help="image source folder root", required=True, default=DEFAULT_IMAGE_ROOT )
+    args = parser.parse_args()
+
     for folder in ['train','test']:
-        image_path = os.path.join(os.getcwd(), ('images/' + folder))
+        image_path = os.path.join(os.getcwd(), (args.source_root + '/' + folder))
         xml_df = xml_to_csv(image_path)
-        xml_df.to_csv(('images/' + folder + '_labels.csv'), index=None)
+        xml_df.to_csv((args.source_root + '/' + folder + '_labels.csv'), index=None)
         print('Successfully converted xml to csv.')
 
 
