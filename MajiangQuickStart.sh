@@ -20,6 +20,6 @@ python3 "$1"/generate_tfrecord.py --csv_input="$1"/train_labels.csv --image_dir=
 python3 "$1"/generate_tfrecord.py --csv_input="$1"/test_labels.csv --image_dir="$1"/test --output_path="$1"/test.record
 
 #train data according to config file data/pipeline_v2.config
-#python3 ${MODELS_DIR}/research/object_detection/legacy/train.py --logtostderr --train_dir="$1"/training/ --pipeline_config_path="$1"/pipeline_v2.config
+python3 ${MODELS_DIR}/research/object_detection/legacy/train.py --logtostderr --train_dir="$1"/training/ --pipeline_config_path="$1"/pipeline_v2.config
 
 
