@@ -25,18 +25,21 @@ import time
 from os import walk
 import xml.etree.ElementTree as ET
 from google.protobuf import text_format
+import argparse
 # This is needed since the notebook is stored in the object_detection folder.
 sys.path.append("..")
 
 # Import utilites
 from utils import label_map_util
 from utils import visualization_utils as vis_util
-
+parser = argparse.ArgumentParser()
+parser.add_argument("-s", "--source_root", help="image source folder root", required=True)
+args = parser.parse_args()
 # Name of the directory containing the object detection module we're using
 MODEL_FILE = 'frozen_inference_graph.pb'
 LABEL_FILE = 'label_map.pbtxt'
-VERIFY_ROOT = "Object_detection_image"
-VERIFY_RESULT_FOLDER = os.path.join(VERIFY_ROOT, "result")
+VERIFY_ROOT = args.source_root
+VERIFY_RESULT_FOLDER = os.path.join(VERIFY_ROOT, "inference_graph", "result")
 IMAGE_FOLDER = "images"
 IMAGE_MAX = 600
 # Grab path to current working directory
@@ -44,16 +47,16 @@ CWD_PATH = os.getcwd()
 
 # Path to frozen detection graph .pb file, which contains the model that is used
 # for object detection.
-PATH_TO_CKPT = os.path.join(VERIFY_ROOT, MODEL_FILE)
+PATH_TO_CKPT = os.path.join(VERIFY_ROOT, "inference_graph", MODEL_FILE)
 
 # Path to label map file
 PATH_TO_LABELS = os.path.join(VERIFY_ROOT, LABEL_FILE)
 
 # Path to image
-FOLDER_OF_IMAGES = os.path.join(VERIFY_ROOT,IMAGE_FOLDER)
+FOLDER_OF_IMAGES = os.path.join(VERIFY_ROOT,"inference_graph", IMAGE_FOLDER)
 
 # Number of classes the object detector can identify
-NUM_CLASSES = 7
+NUM_CLASSES = 34
 
 
 def get_iou(bb1, bb2):
@@ -183,8 +186,8 @@ for image_path in image_paths:
     image = cv2.imread(image_path)
 
     # rsize and crop background img
-    x_ratio = IMAGE_MAX / image.shape[1];
-    y_ratio = IMAGE_MAX / image.shape[0];
+    x_ratio = IMAGE_MAX / float(image.shape[1]);
+    y_ratio = IMAGE_MAX / float(image.shape[0]);
     min_ration = min(x_ratio, y_ratio);
     
 
