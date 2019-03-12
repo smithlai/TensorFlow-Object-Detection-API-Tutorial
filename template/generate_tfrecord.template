@@ -46,7 +46,7 @@ def create_tf_example(group, path):
     encoded_jpg_io = io.BytesIO(encoded_jpg)
     image = Image.open(encoded_jpg_io)
     width, height = image.size
-
+    print(group.filename)
     filename = group.filename.encode('utf8')
     image_format = b'jpg'
     xmins = []
