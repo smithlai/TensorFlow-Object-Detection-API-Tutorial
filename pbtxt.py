@@ -31,13 +31,13 @@ def read_temp2(tags, source_root):
     pbtxt_path = os.path.join(source_root,"label_map.pbtxt")
     trainrecord_path = os.path.join(source_root,"train.record")
     testrecordpath = os.path.join(source_root,"test.record")
-    with open('template/pipeline_v2.template') as f:
+    with open('template/pipeline.template') as f:
         template = f.read();
-        template = template.replace("<tag number>", str(len(tags)) )
-        template = template.replace("<pbtxt path>", pbtxt_path)
-        template = template.replace("<train record path>", trainrecord_path)
-        template = template.replace("<test record path>", testrecordpath)
-    with open(os.path.join(source_root,'pipeline_v2.config'), 'w') as x_file:
+        template = template.replace("<tag_number>", str(len(tags)) )
+        template = template.replace("<pbtxt_path>", pbtxt_path)
+        template = template.replace("<train_record_path>", trainrecord_path)
+        template = template.replace("<test_record_path>", testrecordpath)
+    with open(os.path.join(source_root,'pipeline.config'), 'w') as x_file:
         x_file.write(template)
         
 def read_temp3(tags, source_root):

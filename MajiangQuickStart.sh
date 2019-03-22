@@ -1,8 +1,8 @@
 #copy images and xmls into images folder (into subfolder train and test)
 
-BASE_DIR="$(cd "$(dirname "$0")"; pwd)";
-echo "BASE_DIR => $BASE_DIR";
-MODELS_DIR="${BASE_DIR}/../../tensorflow_libraries/models";
+#BASE_DIR="$(cd "$(dirname "$0")"; pwd)";
+#echo "BASE_DIR => $BASE_DIR";
+MODELS_DIR="/home/ml/workspace/smith/MachineLearning/models";
 echo "MODELS_DIR => $MODELS_DIR";
 PYTHONPATH="${MODELS_DIR}:${MODELS_DIR}/research/:${MODELS_DIR}/research/slim:$PYTHONPATH"
 
@@ -27,5 +27,5 @@ tensorboard  --logdir "$1"/"${TRAINING_FOLDER}"/ &
 #train data according to config file data/pipeline_v2.config
 #python ${MODELS_DIR}/research/object_detection/legacy/train.py --logtostderr --train_dir="$1"/"${TRAINING_FOLDER}"/ --pipeline_config_path="$1"/pipeline_v2.config
 
-python ${MODELS_DIR}/research/object_detection/model_main.py --pipeline_config_path="$1"/pipeline_v2.config --model_dir="$1"/"${TRAINING_FOLDER}"/ --num_train_steps=50000 --sample_1_of_n_eval_examples=100 --alsologtostderr
+python ${MODELS_DIR}/research/object_detection/model_main.py --pipeline_config_path="$1"/pipeline.config --model_dir="$1"/"${TRAINING_FOLDER}"/ --num_train_steps=50000 --sample_1_of_n_eval_examples=100 --alsologtostderr
 
